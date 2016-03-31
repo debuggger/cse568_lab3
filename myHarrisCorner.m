@@ -1,6 +1,7 @@
 function [t1, t2, R] = myHarrisCorner(Ix, Iy, k, image)
     
     img = double(imread(image));
+    img = img(:, :, 1);
     
     [~, ~, Ix, Iy] = myEdgeFilter(img, 1);
     Ix = mat2gray(abs(Ix));
