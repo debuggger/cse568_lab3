@@ -1,14 +1,10 @@
-function [Im, Io, Ix, Iy] = myEdgeFilter(img, sigma)
+function [Im, Io, Ix_old, Ix, Iy_old, Iy] = myEdgeFilter(img, sigma)
     gauKernel = gaussianKernel(sigma);
-    
-    if size(size(img), 2) > 2
-        img = rgb2gray(img);
-    end
-
-    
     smoothedImage = convolution(img, gauKernel);
     Im = smoothedImage ./ sum(sum(gauKernel));
-            
+    
+
+        
     Gy = [   1   2   1;
              0   0   0;
             -1  -2  -1
@@ -19,13 +15,16 @@ function [Im, Io, Ix, Iy] = myEdgeFilter(img, sigma)
     Iy = convolution(Im, Gx);
     Ix = convolution(Im, Gy);
     
-    Iy = im2bw(mat2gray(abs(Iy)), 0.2);
-    Ix = im2bw(mat2gray(abs(Ix)), 0.2);
+    Iy = mat2gray(abs(Iy));
+    Ix = mat2gray(abs(Ix));
     
-    %{
+    
+    Ix_old = Ix;
+    Iy_old = Iy;
+    
     for j = 1:size(Iy, 2)
         for i = 2:size(Iy, 1)-1
-            if(Iy(i, j) ~= max([Iy(i-1, j) Iy(i,j) Iy(i+1, j)]))
+            if(Iy(i, j) != max([Iy(i-1, j) Iy(i,j) Iy(i+1, j)]))
                 Iy(i, j) = 0;
             end
         end
@@ -33,12 +32,14 @@ function [Im, Io, Ix, Iy] = myEdgeFilter(img, sigma)
     
     for i = 1:size(Ix, 1)
         for j = 2:size(Ix, 2)-1
-            if(Ix(i, j) ~= max([Ix(i, j-1) Ix(i, j) Ix(i, j+1)]))
+            if(Ix(i, j) != max([Ix(i, j-1) IxIx(i, j+1)]))
                 Ix(i, j) = 0;
             end
         end
     end
-    %}
+    
+    %Ix = im2bw(Ix, 0.3);
+    %Iy = im2bw(Iy, 0.3);
     
     Im = Ix + Iy;
     
