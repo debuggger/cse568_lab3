@@ -1,30 +1,22 @@
-function [t1, t2, R] = myHarrisCorner(Ix, Iy, k, image)
+function [R] = myHarrisCorner(Ix, Iy, k)
     
-    img = double(imread(image));
-    img = img(:, :, 1);
-    
-    [~, ~, Ix, Iy] = myEdgeFilter(img, 1);
     Ix = mat2gray(abs(Ix));
     Iy = mat2gray(abs(Iy));
-        
+    
     Ix2 = Ix .^ 2;
+    Ix2 = convolution(Ix2, fspecial('gaussian', 5, 1));
+    
     Iy2 = Iy .^ 2;
+    Iy2 = convolution(Iy2, fspecial('gaussian', 5, 1));
+    
     Ixy = Ix .* Iy;
-    
-    Ix2 = convolution(Ix2, gaussianKernel(1));
-    Iy2 = convolution(Iy2, gaussianKernel(1));
-    Ixy = convolution(Ixy, gaussianKernel(1));
+    Ixy = convolution(Ixy, fspecial('gaussian', 5, 1));
         
-    t1 = (Ix2.*Iy2 - Ixy.^2); 
-    t2 = (Ix2 + Iy2).^2;
-    %R = im2bw(mat2gray(abs(t1 - k .* t2)), 0.4);
-    R = im2bw(mat2gray(abs(t1 - k .* t2)), 0.6);
+    detM = (Ix2.*Iy2 - Ixy.^2); 
+    traceM2 = (Ix2 + Iy2).^2;
     
-    figure;
-    imshow(imread(image));
-    hold on
-    [row, col] = find(R == 1);
-    plot(col, row, 'r+');
+    R = mat2gray(abs(detM - k .* traceM2));
+    R = im2bw(R, 0.4);
     
 end
 
